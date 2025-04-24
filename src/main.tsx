@@ -9,7 +9,7 @@ import Register from './pages/Register.tsx';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename="/Kolik-Frontend/"> {/* ✅ Fix is here */}
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/login" element={<Login />} />
