@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from '../api/axios';
+import api from '../api/axios'; // ✅ uses custom axios instance
 
 function MFASetup() {
   const navigate = useNavigate();
@@ -12,9 +12,9 @@ function MFASetup() {
   useEffect(() => {
     const fetchQRCode = async () => {
       try {
-        const response = await axios.get('/mfa/setup/');
-        setQrCode(response.data.qr_code_base64);  // base64 string
-        setSecret(response.data.secret);   // optional use
+        const response = await api.get('mfa/setup/');
+        setQrCode(response.data.qr_code_base64);
+        setSecret(response.data.secret);
       } catch (err: any) {
         setError('Failed to load MFA setup. Please refresh the page.');
       }
@@ -25,12 +25,18 @@ function MFASetup() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!/^\d{6}$/.test(code)) {
+      setError('MFA code must be 6 digits.');
+      return;
+    }
+
     try {
-      await axios.post('/verify-mfa/', { code });
+      await api.post('verify-mfa/', { code }); // ✅ now uses custom axios
       alert('MFA setup successful!');
-      navigate('/'); // redirect to homepage
+      navigate('/');
     } catch (err: any) {
-      if (err.response && err.response.data && err.response.data.error) {
+      if (err.response?.data?.error) {
         setError(err.response.data.error);
       } else {
         setError('Failed to verify MFA code. Please try again.');
@@ -50,7 +56,6 @@ function MFASetup() {
           </p>
         </div>
 
-        {/* QR code loaded from backend */}
         {qrCode ? (
           <div className="flex justify-center">
             <img
@@ -60,36 +65,30 @@ function MFASetup() {
             />
           </div>
         ) : (
-          <p className="text-center text-gray-600">Loading QR code...</p>
+          <p className="text-center text-sm text-gray-500">Loading QR code...</p>
         )}
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <input
+            type="text"
+            name="code"
+            value={code}
+            onChange={(e) => {
+              setCode(e.target.value);
+              setError('');
+            }}
+            placeholder="Enter 6-digit code"
+            maxLength={6}
+            className="w-full border border-gray-300 p-2 rounded text-center tracking-widest"
+          />
           {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
-          <div>
-            <label htmlFor="code" className="block text-sm font-medium text-gray-700">
-              6-digit Code
-            </label>
-            <input
-              id="code"
-              name="code"
-              type="text"
-              required
-              maxLength={6}
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-            >
-              Verify MFA
-            </button>
-          </div>
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+          >
+            Verify MFA
+          </button>
         </form>
       </div>
     </div>

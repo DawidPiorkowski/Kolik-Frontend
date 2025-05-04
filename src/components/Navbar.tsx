@@ -1,6 +1,19 @@
 import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { logoutUser } from '../api/logout';
 
 function Navbar() {
+  const [user, setUser] = useState<{ email: string } | null>(null);
+
+  useEffect(() => {
+    fetch('/api/auth/me/', { credentials: 'include' })
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data && data.email) setUser(data);
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <nav className="bg-sky-600 text-white px-6 py-4 flex items-center justify-between">
       {/* Left: Logo */}
@@ -32,17 +45,31 @@ function Navbar() {
         </div>
       </div>
 
-      {/* Right: Auth Links */}
+      {/* Right: Auth Links or User Info */}
       <div className="flex items-center space-x-4">
-        <Link to="/login" className="text-white/70 hover:text-white transition">
-          Log in
-        </Link>
-        <Link
-          to="/register"
-          className="bg-white text-sky-600 font-medium px-4 py-2 rounded-md hover:bg-gray-100 transition"
-        >
-          Registration
-        </Link>
+        {user ? (
+          <>
+            <span className="text-sm">Logged in as <strong>{user.email}</strong></span>
+            <button
+              onClick={logoutUser}
+              className="bg-white text-red-600 font-medium px-4 py-2 rounded-md hover:bg-red-100 transition"
+            >
+              Logout
+            </button>
+          </>
+        ) : (
+          <>
+            <Link to="/login" className="text-white/70 hover:text-white transition">
+              Log in
+            </Link>
+            <Link
+              to="/register"
+              className="bg-white text-sky-600 font-medium px-4 py-2 rounded-md hover:bg-gray-100 transition"
+            >
+              Registration
+            </Link>
+          </>
+        )}
       </div>
     </nav>
   );

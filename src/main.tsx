@@ -10,6 +10,10 @@ import Terms from './pages/Terms.tsx';
 import Privacy from './pages/Privacy.tsx';
 import MFASetup from './pages/MFASetup.tsx';
 import MFALogin from './pages/MFALogin.tsx';
+import Help from './pages/Help';
+import PasswordResetRequest from './pages/PasswordResetRequest';
+import PasswordResetConfirm from './pages/PasswordResetConfirm';
+import VerifyEmail from './pages/VerifyEmail';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -22,6 +26,10 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/mfa-setup" element={<MFASetup />} />
         <Route path="/mfa-login" element={<MFALogin />} />
+        <Route path="/help" element={<Help />} />
+        <Route path="/password-reset/request" element={<PasswordResetRequest />} />
+        <Route path="/password-reset/confirm" element={<PasswordResetConfirm />} />
+        <Route path="/verify" element={<VerifyEmail />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
